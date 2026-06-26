@@ -9,7 +9,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const params = await searchParams
   const code = typeof params.code === 'string' ? params.code : ''
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://holdr.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://holdr.linkroot.space'
 
   return {
     title: 'Shared Watchlist - Holdr',

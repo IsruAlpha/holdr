@@ -8,6 +8,19 @@ export async function GET(
 ) {
   const { code } = await params
 
+  const dots = [
+    { size: 16, x: -35, y: -25 },
+    { size: 10, x: -10, y: -30 },
+    { size: 20, x: 15, y: -18 },
+    { size: 8, x: 35, y: -35 },
+    { size: 12, x: -25, y: 5 },
+    { size: 14, x: 5, y: 10 },
+    { size: 6, x: 25, y: -5 },
+    { size: 10, x: -40, y: 15 },
+    { size: 8, x: 40, y: 10 },
+    { size: 12, x: -5, y: -8 },
+  ]
+
   return new ImageResponse(
     (
       <div
@@ -22,24 +35,29 @@ export async function GET(
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ fontSize: '64px', fontWeight: 900, color: '#18181b', lineHeight: 1 }}>{'{'}</div>
-          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-            <circle cx="20" cy="15" r="8" fill="#18181b"/>
-            <circle cx="40" cy="10" r="5" fill="#18181b"/>
-            <circle cx="55" cy="20" r="10" fill="#18181b"/>
-            <circle cx="15" cy="35" r="6" fill="#18181b"/>
-            <circle cx="35" cy="40" r="7" fill="#18181b"/>
-            <circle cx="55" cy="45" r="4" fill="#18181b"/>
-            <circle cx="25" cy="55" r="5" fill="#18181b"/>
-            <circle cx="45" cy="60" r="8" fill="#18181b"/>
-            <circle cx="65" cy="55" r="3" fill="#18181b"/>
-            <circle cx="10" cy="60" r="4" fill="#18181b"/>
-          </svg>
-          <div style={{ fontSize: '64px', fontWeight: 900, color: '#18181b', lineHeight: 1 }}>{'}'}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '72px', fontWeight: 900, color: '#18181b', lineHeight: 1 }}>{'{'}</span>
+          <div style={{ position: 'relative', width: '80px', height: '80px' }}>
+            {dots.map((dot, i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `calc(50% + ${dot.x}px)`,
+                  top: `calc(50% + ${dot.y}px)`,
+                  width: `${dot.size}px`,
+                  height: `${dot.size}px`,
+                  borderRadius: '50%',
+                  backgroundColor: '#18181b',
+                }}
+              />
+            ))}
+          </div>
+          <span style={{ fontSize: '72px', fontWeight: 900, color: '#18181b', lineHeight: 1 }}>{'}'}</span>
         </div>
-        <div style={{ fontSize: '48px', fontWeight: 700, color: '#18181b', marginTop: '24px' }}>Holdr</div>
+        <div style={{ fontSize: '52px', fontWeight: 700, color: '#18181b', marginTop: '28px', letterSpacing: '-1px' }}>Holdr</div>
         <div style={{ fontSize: '28px', color: '#71717a', marginTop: '8px' }}>Shared Movie Watchlist</div>
+        <div style={{ fontSize: '18px', color: '#a1a1aa', marginTop: '12px', padding: '6px 16px', borderRadius: '999px', border: '1px solid #d4d4d8' }}>{code}</div>
       </div>
     ),
     {
