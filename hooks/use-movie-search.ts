@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 
 const OMDB_API_KEY = process.env.NEXT_PUBLIC_OMDB_API_KEY || "";
-const OMDB_BASE = "http://www.omdbapi.com";
+const OMDB_BASE = "https://www.omdbapi.com";
 
 export interface OmdbSearchResult {
   imdbID: string;

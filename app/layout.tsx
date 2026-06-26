@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: 'Store movies you want to watch later and get personalized recommendations from friends.',
     images: [
       {
-        url: '/og.png',
+        url: '/api/og',
         width: 1200,
         height: 630,
         alt: 'Holdr - Share Movies',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Holdr - Share Movies',
     description: 'Store movies you want to watch later and get personalized recommendations from friends.',
-    images: ['/og.png'],
+    images: ['/api/og'],
   },
 };
 
