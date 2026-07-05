@@ -1,4 +1,5 @@
-import { ImageResponse } from 'next/og'
+import { NextResponse } from 'next/server'
+import sharp from 'sharp'
 
 export async function GET() {
   const dots = [
@@ -14,47 +15,36 @@ export async function GET() {
     { size: 12, x: -5, y: -8 },
   ]
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#FAF5EE',
-          fontFamily: 'system-ui, sans-serif',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '72px', fontWeight: 900, color: '#18181b', lineHeight: 1 }}>{'{'}</span>
-          <div style={{ position: 'relative', width: '80px', height: '80px' }}>
-            {dots.map((dot, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: `calc(50% + ${dot.x}px)`,
-                  top: `calc(50% + ${dot.y}px)`,
-                  width: `${dot.size}px`,
-                  height: `${dot.size}px`,
-                  borderRadius: '50%',
-                  backgroundColor: '#18181b',
-                }}
-              />
-            ))}
-          </div>
-          <span style={{ fontSize: '72px', fontWeight: 900, color: '#18181b', lineHeight: 1 }}>{'}'}</span>
-        </div>
-        <div style={{ fontSize: '52px', fontWeight: 700, color: '#18181b', marginTop: '28px', letterSpacing: '-1px' }}>Holdr</div>
-        <div style={{ fontSize: '26px', color: '#71717a', marginTop: '8px' }}>Share Movies</div>
-      </div>
-    ),
-    {
-      width: 1200,
-      height: 630,
-    }
-  )
+  const dotsSvg = dots
+    .map(
+      (d) =>
+        `<circle cx="${d.x}" cy="${d.y}" r="${d.size / 2}" fill="#18181b"/>`
+    )
+    .join('')
+
+  const svg = `
+    <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="630" fill="#FAF5EE"/>
+
+      <g transform="translate(600, 230)">
+        <text x="-62" y="18" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="900" fill="#18181b">{</text>
+        <g transform="translate(0, 0)">
+          ${dotsSvg}
+        </g>
+        <text x="62" y="18" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="900" fill="#18181b">}</text>
+      </g>
+
+      <text x="600" y="330" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="700" fill="#18181b" letter-spacing="-1">Holdr</text>
+      <text x="600" y="370" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="26" fill="#71717a">Share Movies</text>
+    </svg>
+  `
+
+  const png = await sharp(Buffer.from(svg)).png().toBuffer()
+
+  return new NextResponse(png, {
+    headers: {
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+    },
+  })
 }
