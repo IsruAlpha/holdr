@@ -1,7 +1,5 @@
 import { ImageResponse } from 'next/og'
 
-export const runtime = 'edge'
-
 async function getShareData(identifier: string) {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL
   if (!convexUrl) return null
