@@ -77,33 +77,62 @@ export const getMoviesByShareCode = query({
   },
 });
 
+export const getMoviesByUserId = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const movies = await ctx.db
+      .query("movies")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .take(100);
+
+    if (movies.length === 0) return null;
+
+    const link = await ctx.db.query("shareLinks").collect();
+    const userLink = link.find((l) => l.userId === args.userId);
+
+    return {
+      movies,
+      userName: userLink?.userName || "Someone",
+      userEmail: userLink?.userEmail || "",
+      profilePictureUrl: userLink?.profilePictureUrl || "",
+    };
+  },
+});
+
 export const listSharedWatchlists = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
 
+    const allMovies = await ctx.db.query("movies").order("desc").take(1000);
+    const otherMovies = allMovies.filter((m) => m.userId !== identity.tokenIdentifier);
+
     const allLinks = await ctx.db.query("shareLinks").collect();
-    const otherLinks = allLinks.filter((link) => link.userId !== identity.tokenIdentifier);
+    const linkMap = new Map(allLinks.map((link) => [link.userId, link]));
+
+    const grouped = new Map<string, typeof otherMovies>();
+    for (const movie of otherMovies) {
+      const existing = grouped.get(movie.userId) || [];
+      existing.push(movie);
+      grouped.set(movie.userId, existing);
+    }
 
     const results = [];
-    for (const link of otherLinks) {
-      const movies = await ctx.db
-        .query("movies")
-        .withIndex("by_userId", (q) => q.eq("userId", link.userId))
-        .order("desc")
-        .take(100);
+    for (const [userId, movies] of grouped) {
+      const link = linkMap.get(userId);
+      const shareCode = link?.code || userId.replace(/[^a-zA-Z0-9]/g, "").slice(-12).toLowerCase();
 
-      if (movies.length > 0) {
-        results.push({
-          code: link.code,
-          userName: link.userName || "Someone",
-          userEmail: link.userEmail || "",
-          profilePictureUrl: link.profilePictureUrl || "",
-          movieCount: movies.length,
-          movies,
-        });
-      }
+      results.push({
+        code: shareCode,
+        userId: userId,
+        userName: link?.userName || "Someone",
+        userEmail: link?.userEmail || "",
+        profilePictureUrl: link?.profilePictureUrl || "",
+        movieCount: movies.length,
+        movies: movies.slice(0, 100),
+      });
     }
 
     return results;

@@ -15,12 +15,20 @@ import { HoldrLogo } from "@/components/holdr-logo";
 function ShareContent() {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
-  const result = useQuery(
+  const userId = searchParams.get("userId");
+  const codeResult = useQuery(
     api.shareLinks.getMoviesByShareCode,
     code ? { code } : "skip"
   );
+  const userIdResult = useQuery(
+    api.shareLinks.getMoviesByUserId,
+    userId ? { userId } : "skip"
+  );
 
-  if (!code) {
+  const result = code ? codeResult : userIdResult;
+  const hasParam = !!(code || userId);
+
+  if (!hasParam) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

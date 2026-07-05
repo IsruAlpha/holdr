@@ -167,8 +167,8 @@ function DashboardContent({ user }: { user: { email: string; firstName?: string 
 
                 return (
                   <Link
-                    key={watchlist.code}
-                    href={`/share?code=${watchlist.code}`}
+                    key={watchlist.userId}
+                    href={`/share?userId=${encodeURIComponent(watchlist.userId)}`}
                     className="group relative rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-md transition-all aspect-[4/3]"
                   >
                     <div className="absolute inset-0 flex items-center justify-center gap-2 p-4">
