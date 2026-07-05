@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { Authenticated } from "convex/react";
+import { useAuth } from "@workos-inc/authkit-nextjs/components";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -130,6 +131,7 @@ function ShareContent() {
 }
 
 function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: string; poster: string; rating: string; genre: string; description: string; watched: boolean } }) {
+  const { user } = useAuth();
   const addMovie = useMutation(api.movies.addMovie);
   const [added, setAdded] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -137,6 +139,7 @@ function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: 
   const handleAdd = async () => {
     setAdding(true);
     try {
+      const displayName = user?.firstName || user?.email?.split("@")[0] || "";
       await addMovie({
         title: movie.title,
         year: movie.year,
@@ -144,6 +147,9 @@ function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: 
         rating: movie.rating,
         genre: movie.genre,
         description: movie.description,
+        userName: displayName || undefined,
+        userEmail: user?.email || undefined,
+        profilePictureUrl: user?.profilePictureUrl || undefined,
       });
       setAdded(true);
     } catch {

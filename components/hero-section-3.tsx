@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { HeroHeader } from './header'
 import { ChevronRight, Film, Star, Bookmark, Share2 } from 'lucide-react'
@@ -24,10 +23,10 @@ export default function HeroSection() {
                                     <Button
                                         asChild
                                         className="mt-6 pr-1.5">
-                                        <Link href="/sign-up">
+                                        <a href="/sign-up">
                                             <span className="text-nowrap">Start Collecting</span>
                                             <ChevronRight className="opacity-50" />
-                                        </Link>
+                                        </a>
                                     </Button>
                                 </div>
                                 <div

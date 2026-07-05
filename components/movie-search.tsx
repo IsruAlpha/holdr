@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Film, Search, Loader2, X } from "lucide-react";
 
-export function MovieSearch() {
+export function MovieSearch({ user }: { user?: { email: string; firstName?: string | null; lastName?: string | null; profilePictureUrl?: string | null } }) {
   const { query, setQuery, results, isLoading, error, selectMovie } = useMovieSearch();
   const [isOpen, setIsOpen] = useState(false);
   const [isAdding, setIsAdding] = useState<string | null>(null);
@@ -37,6 +37,9 @@ export function MovieSearch() {
           rating: details.imdbRating !== "N/A" ? details.imdbRating : "N/A",
           genre: details.Genre !== "N/A" ? details.Genre : "Unknown",
           description: details.Plot !== "N/A" ? details.Plot : "",
+          userName: user ? (user.firstName || user.email.split("@")[0]) : undefined,
+          userEmail: user?.email,
+          profilePictureUrl: user?.profilePictureUrl || undefined,
         });
       }
     } catch {

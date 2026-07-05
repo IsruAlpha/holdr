@@ -25,12 +25,35 @@ export const addMovie = mutation({
     rating: v.string(),
     genre: v.string(),
     description: v.string(),
+    userName: v.optional(v.string()),
+    userEmail: v.optional(v.string()),
+    profilePictureUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Not authenticated");
     }
+
+    if (args.userName && args.userEmail) {
+      const existingLinks = await ctx.db.query("shareLinks").collect();
+      const userLink = existingLinks.find((l) => l.userId === identity.tokenIdentifier);
+      if (!userLink) {
+        const code = identity.tokenIdentifier
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .slice(-12)
+          .toLowerCase();
+        await ctx.db.insert("shareLinks", {
+          code,
+          userId: identity.tokenIdentifier,
+          userName: args.userName,
+          userEmail: args.userEmail,
+          profilePictureUrl: args.profilePictureUrl,
+          createdAt: Date.now(),
+        });
+      }
+    }
+
     const id = await ctx.db.insert("movies", {
       userId: identity.tokenIdentifier,
       title: args.title,

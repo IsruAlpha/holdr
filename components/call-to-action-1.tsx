@@ -13,10 +13,10 @@ export default function CallToAction() {
                         <Button
                             asChild
                             className="pr-1.5">
-                            <Link href="/sign-up">
+                            <a href="/sign-up">
                                 <span>Get Started (Free)</span>
                                 <ChevronRight className="opacity-50" />
-                            </Link>
+                            </a>
                         </Button>
                         <Button
                             variant="secondary"

@@ -119,7 +119,7 @@ function DashboardContent({ user }: { user: { email: string; firstName?: string 
 
         <div className="mb-6 sm:mb-8 flex items-center gap-3">
           <div className="flex-1">
-            <MovieSearch />
+            <MovieSearch user={user} />
           </div>
           <div className="relative shrink-0">
             <Button onClick={handleShare} className="gap-2">
