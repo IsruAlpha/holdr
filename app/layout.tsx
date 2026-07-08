@@ -4,7 +4,6 @@ import './globals.css';
 import { ConvexClientProvider } from '@/components/ConvexClientProvider';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { cn } from "@/lib/utils";
-import Script from 'next/script';
 
 const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
@@ -55,16 +54,16 @@ export default async function RootLayout({
   const { accessToken } = await withAuth();
   return (
     <html lang="en" className={cn("font-mono", jetbrainsMono.variable)}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <ConvexClientProvider expectAuth={!!accessToken}>{children}</ConvexClientProvider>
-        
-        <Script
+      <head>
+        <script
           src="https://cdn.databuddy.cc/databuddy.js"
           data-client-id="b11213aa-1901-4577-9a06-19a4e067549a"
-          data-track-interactions="true"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+          async
+        ></script>
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+        <ConvexClientProvider expectAuth={!!accessToken}>{children}</ConvexClientProvider>
       </body>
     </html>
   );
