@@ -39,8 +39,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   if (code) {
     const shareData = await getShareData(code)
-    if (shareData?.userName) {
-      description = `Check out ${shareData.userName}'s movie recommendations on Holdr.`
+    const resolvedName = shareData?.userName?.trim() ||
+      (shareData?.userEmail
+        ? shareData.userEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+        : null)
+    if (resolvedName) {
+      description = `Check out ${resolvedName}'s movie recommendations on Holdr.`
     }
   }
 

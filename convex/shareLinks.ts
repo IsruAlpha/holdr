@@ -1,6 +1,18 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+function displayName(userName?: string, userEmail?: string): string {
+  if (userName && userName.trim()) return userName.trim();
+  if (userEmail && userEmail.trim()) {
+    const prefix = userEmail.split("@")[0];
+    // Capitalise first letter and replace dots/underscores/hyphens with spaces
+    return prefix
+      .replace(/[._-]/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return "Holdr User";
+}
+
 export const createShareLink = mutation({
   args: {
     userName: v.string(),
@@ -70,7 +82,7 @@ export const getMoviesByShareCode = query({
 
     return {
       movies,
-      userName: link.userName || "Someone",
+      userName: displayName(link.userName, link.userEmail),
       userEmail: link.userEmail || "",
       profilePictureUrl: link.profilePictureUrl || "",
     };
@@ -93,7 +105,7 @@ export const getMoviesByUserId = query({
 
     return {
       movies,
-      userName: userLink?.userName || "Someone",
+      userName: displayName(userLink?.userName, userLink?.userEmail),
       userEmail: userLink?.userEmail || "",
       profilePictureUrl: userLink?.profilePictureUrl || "",
     };
@@ -127,7 +139,7 @@ export const listSharedWatchlists = query({
       results.push({
         code: shareCode,
         userId: userId,
-        userName: link?.userName || "Someone",
+        userName: displayName(link?.userName, link?.userEmail),
         userEmail: link?.userEmail || "",
         profilePictureUrl: link?.profilePictureUrl || "",
         movieCount: movies.length,

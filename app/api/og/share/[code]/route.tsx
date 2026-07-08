@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import sharp from 'sharp'
 
+function resolveDisplayName(userName?: string, userEmail?: string): string {
+  if (userName && userName.trim()) return userName.trim();
+  if (userEmail && userEmail.trim()) {
+    const prefix = userEmail.split('@')[0];
+    return prefix
+      .replace(/[._-]/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return 'Holdr User';
+}
+
 async function getShareData(identifier: string) {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL
   if (!convexUrl) return null
@@ -47,7 +58,7 @@ export async function GET(
   const { code } = await params
   const shareData = await getShareData(code)
 
-  const userName = shareData?.userName || 'Someone'
+  const userName = resolveDisplayName(shareData?.userName, shareData?.userEmail)
   const allMovies: Array<{ poster: string; title: string }> = shareData?.movies || []
   const totalMovies = allMovies.length
   const moviesWithPosters = allMovies
