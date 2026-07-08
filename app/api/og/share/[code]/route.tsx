@@ -20,6 +20,7 @@ async function getShareData(identifier: string) {
     const codeResponse = await fetch(`${convexUrl}/api/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
       body: JSON.stringify({
         path: 'shareLinks:getMoviesByShareCode',
         args: { code: identifier },
@@ -34,6 +35,7 @@ async function getShareData(identifier: string) {
     const userIdResponse = await fetch(`${convexUrl}/api/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
       body: JSON.stringify({
         path: 'shareLinks:getMoviesByUserId',
         args: { userId: identifier },

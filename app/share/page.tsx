@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import ShareClient from './share-client'
 
+// Always run at request time so every share link gets its own personalized OG
+export const dynamic = 'force-dynamic'
+
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
@@ -13,6 +16,7 @@ async function getShareData(code: string) {
     const response = await fetch(`${convexUrl}/api/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
       body: JSON.stringify({
         path: 'shareLinks:getMoviesByShareCode',
         args: { code },

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 
 function displayName(userName?: string, userEmail?: string): string {
   if (userName && userName.trim()) return userName.trim();
@@ -26,7 +26,11 @@ export const createShareLink = mutation({
     }
 
     const existing = await ctx.db.query("shareLinks").collect();
-    const userLink = existing.find((link) => link.userId === identity.tokenIdentifier);
+    const rawIdentityId = identity.tokenIdentifier.includes("|") ? identity.tokenIdentifier.split("|")[1] : identity.tokenIdentifier;
+    const userLink = existing.find((link) => {
+      const linkRawId = link.userId.includes("|") ? link.userId.split("|")[1] : link.userId;
+      return linkRawId === rawIdentityId;
+    });
 
     if (userLink) {
       const needsUpdate =
@@ -64,6 +68,53 @@ export const createShareLink = mutation({
   },
 });
 
+export const backfillShareLink = internalMutation({
+  args: {
+    userId: v.string(),
+    userName: v.string(),
+    userEmail: v.string(),
+    profilePictureUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.query("shareLinks").collect();
+    const userLink = existing.find((link) => link.userId === args.userId);
+
+    if (userLink) {
+      const needsUpdate =
+        !userLink.userName ||
+        !userLink.userEmail ||
+        userLink.userName !== args.userName ||
+        userLink.userEmail !== args.userEmail ||
+        userLink.profilePictureUrl !== args.profilePictureUrl;
+
+      if (needsUpdate) {
+        await ctx.db.patch(userLink._id, {
+          userName: args.userName,
+          userEmail: args.userEmail,
+          profilePictureUrl: args.profilePictureUrl,
+        });
+      }
+      return userLink.code;
+    }
+
+    const code = args.userId
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(-12)
+      .toLowerCase();
+
+    await ctx.db.insert("shareLinks", {
+      code,
+      userId: args.userId,
+      userName: args.userName,
+      userEmail: args.userEmail,
+      profilePictureUrl: args.profilePictureUrl,
+      createdAt: Date.now(),
+    });
+
+    return code;
+  },
+});
+
 export const getMoviesByShareCode = query({
   args: { code: v.string() },
   handler: async (ctx, args) => {
@@ -74,11 +125,16 @@ export const getMoviesByShareCode = query({
 
     if (!link) return null;
 
-    const movies = await ctx.db
-      .query("movies")
-      .withIndex("by_userId", (q) => q.eq("userId", link.userId))
-      .order("desc")
-      .take(100);
+    const linkRawId = link.userId.includes("|") ? link.userId.split("|")[1] : link.userId;
+
+    // Fetch movies. We must fetch a larger chunk and filter by normalized ID
+    // because movies might be stored under the issuer-prefixed token identifier
+    // whereas the link might be stored under the raw WorkOS ID.
+    const allMovies = await ctx.db.query("movies").order("desc").collect();
+    const movies = allMovies.filter((m) => {
+      const mRawId = m.userId.includes("|") ? m.userId.split("|")[1] : m.userId;
+      return mRawId === linkRawId;
+    }).slice(0, 100);
 
     return {
       movies,
@@ -100,8 +156,12 @@ export const getMoviesByUserId = query({
 
     if (movies.length === 0) return null;
 
+    const rawArgsUserId = args.userId.includes("|") ? args.userId.split("|")[1] : args.userId;
     const link = await ctx.db.query("shareLinks").collect();
-    const userLink = link.find((l) => l.userId === args.userId);
+    const userLink = link.find((l) => {
+      const lRawId = l.userId.includes("|") ? l.userId.split("|")[1] : l.userId;
+      return lRawId === rawArgsUserId;
+    });
 
     return {
       movies,
@@ -122,7 +182,12 @@ export const listSharedWatchlists = query({
     const otherMovies = allMovies.filter((m) => m.userId !== identity.tokenIdentifier);
 
     const allLinks = await ctx.db.query("shareLinks").collect();
-    const linkMap = new Map(allLinks.map((link) => [link.userId, link]));
+    const linkMap = new Map(
+      allLinks.map((link) => {
+        const rawId = link.userId.includes("|") ? link.userId.split("|")[1] : link.userId;
+        return [rawId, link];
+      })
+    );
 
     const grouped = new Map<string, typeof otherMovies>();
     for (const movie of otherMovies) {
@@ -133,7 +198,9 @@ export const listSharedWatchlists = query({
 
     const results = [];
     for (const [userId, movies] of grouped) {
-      const link = linkMap.get(userId);
+      const rawUserId = userId.includes("|") ? userId.split("|")[1] : userId;
+      const link = linkMap.get(rawUserId);
+
       const shareCode = link?.code || userId.replace(/[^a-zA-Z0-9]/g, "").slice(-12).toLowerCase();
 
       results.push({

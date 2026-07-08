@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Authenticated, Unauthenticated, useMutation, useQuery } from "convex/react";
@@ -81,7 +81,30 @@ function DashboardContent({ user }: { user: { email: string; firstName?: string 
   const createShareLink = useMutation(api.shareLinks.createShareLink);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const displayName = user.firstName || user.email.split("@")[0];
+  const displayName = user.firstName
+    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ``}`
+    : user.email.split("@")[0];
+
+  // Capture stable refs so the one-shot useEffect doesn't need them in deps
+  const createShareLinkRef = useRef(createShareLink);
+  createShareLinkRef.current = createShareLink;
+  const syncPayloadRef = useRef({ displayName, email: user.email, pic: user.profilePictureUrl });
+  syncPayloadRef.current = { displayName, email: user.email, pic: user.profilePictureUrl };
+
+  // Silently upsert user info into shareLinks so they always have a real name
+  // in other people's Recommendations — even before they click "Share Page".
+  // Empty dep array = run exactly once after first mount, never re-runs.
+  useEffect(() => {
+    const { displayName: name, email, pic } = syncPayloadRef.current;
+    createShareLinkRef.current({
+      userName: name,
+      userEmail: email,
+      profilePictureUrl: pic || undefined,
+    }).catch(() => {
+      // Non-critical — ignore silently
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleToggleWatched = (movieId: string) => {
     toggleWatched({ movieId: movieId as Id<"movies"> });
