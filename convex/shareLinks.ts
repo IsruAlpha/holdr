@@ -121,7 +121,7 @@ export const getMoviesByShareCode = query({
     const link = await ctx.db
       .query("shareLinks")
       .withIndex("by_code", (q) => q.eq("code", args.code))
-      .unique();
+      .first();
 
     if (!link) return null;
 

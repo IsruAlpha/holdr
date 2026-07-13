@@ -136,7 +136,13 @@ function DashboardContent({ user }: { user: { email: string; firstName?: string 
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">My Watchlist</h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-            Search for movies and build your collection.
+            Search for movies and build your collection.{" "}
+            <Link
+              href="/trending"
+              className="font-semibold text-foreground hover:underline"
+            >
+              See what&apos;s trending
+            </Link>
           </p>
         </div>
 

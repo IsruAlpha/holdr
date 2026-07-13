@@ -51,7 +51,10 @@ function ShareContent() {
   if (result === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+          <div className="text-muted-foreground">Loading watchlist...</div>
+        </div>
       </div>
     );
   }
@@ -162,12 +165,17 @@ function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: 
   return (
     <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="flex gap-3 p-3 sm:gap-6 sm:p-6">
-        <Avatar className="h-24 w-16 sm:h-32 sm:w-24 rounded-lg shrink-0">
-          <AvatarImage src={movie.poster} alt={movie.title} />
-          <AvatarFallback className="rounded-lg bg-muted">
-            <Film className="h-5 w-5 sm:h-6 sm:w-6" />
-          </AvatarFallback>
-        </Avatar>
+        {movie.poster && movie.poster !== "N/A" ? (
+          <img
+            src={movie.poster}
+            alt={movie.title}
+            className="h-24 w-16 sm:h-32 sm:w-24 rounded-lg object-cover shrink-0"
+          />
+        ) : (
+          <div className="h-24 w-16 sm:h-32 sm:w-24 rounded-lg bg-muted flex items-center justify-center shrink-0">
+            <Film className="h-6 w-6 text-muted-foreground/50" />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-tight">{movie.title}</h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{movie.year}</p>
@@ -223,7 +231,10 @@ export default function ShareClient() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+            <div className="text-muted-foreground">Loading...</div>
+          </div>
         </div>
       }
     >

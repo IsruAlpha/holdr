@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ConvexClientProvider } from '@/components/ConvexClientProvider';
+import { CapacitorProvider } from '@/components/CapacitorProvider';
+import { NativePlatformDetector } from '@/components/NativePlatformDetector';
 import { withAuth } from '@workos-inc/authkit-nextjs';
 import { cn } from "@/lib/utils";
 
@@ -63,7 +65,11 @@ export default async function RootLayout({
         ></script>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <ConvexClientProvider expectAuth={!!accessToken}>{children}</ConvexClientProvider>
+        <NativePlatformDetector>
+          <CapacitorProvider>
+            <ConvexClientProvider expectAuth={!!accessToken}>{children}</ConvexClientProvider>
+          </CapacitorProvider>
+        </NativePlatformDetector>
       </body>
     </html>
   );

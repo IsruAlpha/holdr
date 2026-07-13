@@ -128,3 +128,24 @@
     @apply font-mono;
   }
 }
+
+/* ── Native app mode ────────────────────────────────────── */
+body[data-native="true"] {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+  padding-top: env(safe-area-inset-top);
+}
+
+body[data-native="true"] main,
+body[data-native="true"] .dashboard-content {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 5rem);
+}
+
+body[data-native="true"] header {
+  top: env(safe-area-inset-top);
+}
+
+/* Hide the web-only landing header on native; show the native tab bar */
+body[data-native="true"] .web-header {
+  display: none;
+}
