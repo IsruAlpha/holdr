@@ -43,13 +43,22 @@ export const HeroHeader = () => {
                                 <HoldrLogo showText={true} />
                             </Link>
 
-                            <button
-                                onClick={() => setMenuState(!menuState)}
-                                aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
-                                className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
-                                <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
-                                <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {user && (
+                                    <a
+                                        href="/dashboard"
+                                        className="lg:hidden text-sm font-medium text-foreground hover:underline px-2 py-1">
+                                        Dashboard
+                                    </a>
+                                )}
+                                <button
+                                    onClick={() => setMenuState(!menuState)}
+                                    aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
+                                    className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
+                                    <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
+                                    <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="absolute inset-0 m-auto hidden size-fit lg:block">
@@ -131,6 +140,13 @@ export const HeroHeader = () => {
                 </div>
             </nav>
         </header>
+        {user && (
+          <div className="lg:hidden sticky top-[72px] z-10 bg-background/80 backdrop-blur-md border-b border-black/5 px-4 py-2">
+            <a href="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline">
+              Dashboard
+            </a>
+          </div>
+        )}
         </>
     )
 }

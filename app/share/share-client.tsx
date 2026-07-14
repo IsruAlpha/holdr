@@ -17,6 +17,7 @@ function ShareContent() {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
   const userId = searchParams.get("userId");
+  const { user } = useAuth();
   const codeResult = useQuery(
     api.shareLinks.getMoviesByShareCode,
     code ? { code } : "skip"
@@ -90,12 +91,25 @@ function ShareContent() {
               <HoldrLogo showText={false} className="!size-7 sm:!size-8" />
               <span className="text-lg sm:text-xl font-bold tracking-tight">Holdr</span>
             </Link>
-            <Link
-              href="/"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Try Holdr
-            </Link>
+            <div className="flex items-center gap-3">
+              {user && (
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </Link>
+              )}
+              {!user && (
+                <Link
+                  href="/"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Try Holdr
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </header>

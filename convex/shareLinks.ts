@@ -172,6 +172,94 @@ export const getMoviesByUserId = query({
   },
 });
 
+export const searchShareLinks = query({
+  args: { query: v.string() },
+  handler: async (ctx, args) => {
+    const q = args.query.toLowerCase().trim();
+    if (q.length < 2) return [];
+
+    const allLinks = await ctx.db.query("shareLinks").collect();
+    const matches = allLinks.filter((link) => {
+      const name = displayName(link.userName, link.userEmail).toLowerCase();
+      const email = (link.userEmail || "").toLowerCase();
+      return name.includes(q) || email.includes(q);
+    });
+
+    const seen = new Map<string, typeof matches[0]>();
+    for (const link of matches) {
+      const rawId = link.userId.includes("|") ? link.userId.split("|")[1] : link.userId;
+      const existing = seen.get(rawId);
+      if (!existing || (link.code || "") > (existing.code || "")) {
+        seen.set(rawId, link);
+      }
+    }
+    const unique = Array.from(seen.values()).slice(0, 20);
+
+    const allMovies = await ctx.db.query("movies").order("desc").take(5000);
+
+    return unique.map((link) => {
+      const linkRawId = link.userId.includes("|") ? link.userId.split("|")[1] : link.userId;
+      const userMovies = allMovies.filter((m) => {
+        const mRawId = m.userId.includes("|") ? m.userId.split("|")[1] : m.userId;
+        return mRawId === linkRawId;
+      });
+      const watchedCount = userMovies.filter((m) => m.watched).length;
+
+      return {
+        code: link.code,
+        userId: link.userId,
+        userName: displayName(link.userName, link.userEmail),
+        userEmail: link.userEmail || "",
+        profilePictureUrl: link.profilePictureUrl || "",
+        totalMovies: userMovies.length,
+        watchedCount,
+        score: watchedCount,
+      };
+    });
+  },
+});
+
+export const getLeaderboard = query({
+  args: {},
+  handler: async (ctx) => {
+    const allLinks = await ctx.db.query("shareLinks").collect();
+    const allMovies = await ctx.db.query("movies").order("desc").take(5000);
+
+    const results = allLinks.map((link) => {
+      const linkRawId = link.userId.includes("|") ? link.userId.split("|")[1] : link.userId;
+      const userMovies = allMovies.filter((m) => {
+        const mRawId = m.userId.includes("|") ? m.userId.split("|")[1] : m.userId;
+        return mRawId === linkRawId;
+      });
+      const watchedCount = userMovies.filter((m) => m.watched).length;
+
+      return {
+        code: link.code,
+        userId: link.userId,
+        userName: displayName(link.userName, link.userEmail),
+        userEmail: link.userEmail || "",
+        profilePictureUrl: link.profilePictureUrl || "",
+        totalMovies: userMovies.length,
+        watchedCount,
+        score: watchedCount,
+      };
+    });
+
+    const seen = new Map<string, typeof results[0]>();
+    for (const r of results) {
+      if (r.totalMovies <= 0) continue;
+      const rawId = r.userId.includes("|") ? r.userId.split("|")[1] : r.userId;
+      const existing = seen.get(rawId);
+      if (!existing || r.totalMovies > existing.totalMovies) {
+        seen.set(rawId, r);
+      }
+    }
+    return Array.from(seen.values())
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 50);
+  },
+});
+
 export const listSharedWatchlists = query({
   args: {},
   handler: async (ctx) => {

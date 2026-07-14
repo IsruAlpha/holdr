@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Film, Trash2, ListFilter, Columns, ExternalLink } from "lucide-react";
+import { Film, Trash2, ListFilter, Columns, Eye, EyeOff } from "lucide-react";
 
 // --- TYPE DEFINITIONS ---
 export interface Movie {
@@ -282,11 +282,11 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
                           className="h-7 px-2 text-xs gap-1"
                         >
                           {movie.watched ? (
-                            <ExternalLink className="h-3 w-3" />
+                            <EyeOff className="h-3 w-3" />
                           ) : (
-                            <Film className="h-3 w-3" />
+                            <Eye className="h-3 w-3" />
                           )}
-                          {movie.watched ? "Rewatch" : "Watched"}
+                          {movie.watched ? "Watched" : "To Watch"}
                         </Button>
                         <Button
                           variant="ghost"
@@ -414,9 +414,9 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
                           title={movie.watched ? "Mark as to watch" : "Mark as watched"}
                         >
                           {movie.watched ? (
-                            <ExternalLink className="h-4 w-4" />
+                            <EyeOff className="h-4 w-4" />
                           ) : (
-                            <Film className="h-4 w-4" />
+                            <Eye className="h-4 w-4" />
                           )}
                         </Button>
                         <Button

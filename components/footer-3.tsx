@@ -30,11 +30,13 @@ export default function Footer() {
                         </nav>
                     </div>
                 </div>
-                <div className="pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <p className="text-muted-foreground text-sm">&copy; {2026} Holdr. All rights reserved.</p>
-                    <div className="flex gap-4">
-                        <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Privacy</Link>
-                        <Link href="/policy" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Policy</Link>
+                <div className="pt-8 flex flex-col items-center gap-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+                        <p className="text-muted-foreground text-sm">&copy; {2026} Holdr. All rights reserved.</p>
+                        <div className="flex gap-4">
+                            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Privacy</Link>
+                            <Link href="/policy" className="text-muted-foreground hover:text-foreground text-sm transition-colors">Policy</Link>
+                        </div>
                     </div>
                 </div>
             </div>

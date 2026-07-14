@@ -1,8 +1,13 @@
+'use client'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
+import { useAuth } from '@workos-inc/authkit-nextjs/components'
 
 export default function CallToAction() {
+    const { user } = useAuth()
+
     return (
         <section className="bg-background @container py-24">
             <div className="mx-auto max-w-2xl px-6">
@@ -13,8 +18,8 @@ export default function CallToAction() {
                         <Button
                             asChild
                             className="pr-1.5">
-                            <a href="/sign-up">
-                                <span>Get Started (Free)</span>
+                            <a href={user ? "/dashboard" : "/sign-up"}>
+                                <span>{user ? "Dashboard" : "Get Started (Free)"}</span>
                                 <ChevronRight className="opacity-50" />
                             </a>
                         </Button>

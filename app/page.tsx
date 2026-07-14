@@ -49,7 +49,7 @@ function LoggedInHeader({ user, onSignOut }: { user: User; onSignOut: () => void
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:inline"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Dashboard
             </Link>

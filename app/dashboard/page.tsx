@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogOut, Film, Share2 } from "lucide-react";
 import { HoldrLogo } from "@/components/holdr-logo";
+import { PeopleSearch } from "@/components/people-search";
 
 export default function DashboardPage() {
   const { user, signOut } = useAuth();
@@ -246,6 +247,8 @@ function DashboardContent({ user }: { user: { email: string; firstName?: string 
             </div>
           </div>
         )}
+
+        <PeopleSearch />
       </div>
     </main>
   );
