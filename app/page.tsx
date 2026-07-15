@@ -27,7 +27,6 @@ export default function Home() {
         <WebLanding />
       </Authenticated>
       <Unauthenticated>
-        <NativeWelcome />
         <WebLanding />
       </Unauthenticated>
     </>
@@ -41,7 +40,7 @@ function NativeRedirect() {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       setIsNative(true);
-      router.replace('/dashboard');
+      router.replace('/onboarding');
     }
   }, [router]);
 
@@ -49,61 +48,6 @@ function NativeRedirect() {
   return (
     <div className="flex min-h-dvh items-center justify-center">
       <div className="animate-spin h-6 w-6 border-2 border-muted-foreground border-t-transparent rounded-full" />
-    </div>
-  );
-}
-
-function NativeWelcome() {
-  const router = useRouter();
-  const [isNative, setIsNative] = useState(false);
-
-  useEffect(() => {
-    setIsNative(Capacitor.isNativePlatform());
-  }, []);
-
-  if (!isNative) return null;
-
-  return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center gap-8 text-center max-w-sm"
-        >
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-          >
-            <HoldrLogo className="!size-16" showText={false} />
-          </motion.div>
-
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold tracking-tight">Holdr</h1>
-            <p className="text-muted-foreground text-base leading-relaxed">
-              Your personal movie tracker. Save films, share lists with friends, and discover what to watch next.
-            </p>
-          </div>
-
-          <div className="w-full flex flex-col gap-3 mt-2">
-            <Button
-              onClick={() => router.push('/sign-in')}
-              className="h-12 text-base font-medium w-full"
-            >
-              Sign in
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => router.push('/sign-up')}
-              className="h-12 text-base font-medium w-full"
-            >
-              Create account
-            </Button>
-          </div>
-        </motion.div>
-      </div>
     </div>
   );
 }

@@ -6,10 +6,8 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import { HoldrLogo } from '@/components/holdr-logo';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const NATIVE_REDIRECT = 'space.linkroot.holdr://auth-callback';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -26,8 +24,7 @@ export default function SignInPage() {
     setError('');
 
     try {
-      const type = 'sign-in';
-      const res = await fetch(`/api/auth/workos-url?type=${type}&native=${isNative}`);
+      const res = await fetch(`/api/auth/workos-url?type=sign-in&native=${isNative}`);
       const data = await res.json();
 
       if (!data.url) {
@@ -47,92 +44,74 @@ export default function SignInPage() {
     }
   }
 
-  async function handleSignUp() {
-    setLoading(true);
-    setError('');
-
-    try {
-      const type = 'sign-up';
-      const res = await fetch(`/api/auth/workos-url?type=${type}&native=${isNative}`);
-      const data = await res.json();
-
-      if (!data.url) {
-        setError('Failed to start sign-up');
-        setLoading(false);
-        return;
-      }
-
-      if (isNative) {
-        await Browser.open({ url: data.url });
-      } else {
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="flex min-h-dvh flex-col bg-background relative">
+      {/* Back button */}
+      <div className="absolute top-0 left-0 z-10 px-4 pt-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+        <button
+          onClick={() => router.push('/')}
+          className="text-muted-foreground hover:text-foreground transition-colors p-1"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+      </div>
+
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
           className="w-full max-w-sm flex flex-col items-center gap-8"
         >
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-          >
-            <HoldrLogo className="!size-14" showText={false} />
-          </motion.div>
+          {/* Logo */}
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-100 via-pink-50 to-orange-100 opacity-50 blur-xl scale-150" />
+            <div className="relative bg-background rounded-2xl p-4">
+              <HoldrLogo className="!size-12" showText={false} />
+            </div>
+          </div>
 
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">Welcome to Holdr</h1>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Sign in to track movies, share lists with friends, and discover what to watch next.
+          {/* Heading */}
+          <div className="text-center space-y-3">
+            <h1 className="text-[28px] font-bold tracking-tight">Welcome back</h1>
+            <p className="text-muted-foreground text-[15px] leading-relaxed">
+              Sign in to access your watchlist and discover new films.
             </p>
           </div>
 
+          {/* Sign in button */}
           <div className="w-full flex flex-col gap-3">
             <Button
               onClick={handleSignIn}
               disabled={loading}
-              className="h-12 text-base font-medium w-full"
+              className="h-[52px] text-[15px] font-semibold rounded-xl w-full"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                'Sign in'
+                <>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Continue with email
+                </>
               )}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleSignUp}
-              disabled={loading}
-              className="h-12 text-base font-medium w-full"
-            >
-              Create account
             </Button>
           </div>
 
           {error && (
             <p className="text-destructive text-sm text-center">{error}</p>
           )}
-        </motion.div>
-      </div>
 
-      <div className="pb-8 pt-4 text-center">
-        <button
-          onClick={() => router.push('/')}
-          className="text-muted-foreground hover:text-foreground text-sm inline-flex items-center gap-1 transition-colors"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back
-        </button>
+          {/* Sign up link */}
+          <p className="text-muted-foreground text-sm">
+            Don&apos;t have an account?{' '}
+            <button
+              onClick={() => router.push('/sign-up')}
+              className="text-foreground font-medium hover:underline transition-all"
+            >
+              Sign up
+            </button>
+          </p>
+        </motion.div>
       </div>
     </div>
   );
