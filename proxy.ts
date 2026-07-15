@@ -4,7 +4,7 @@ export default authkitMiddleware({
   eagerAuth: true,
   middlewareAuth: {
     enabled: true,
-    unauthenticatedPaths: ['/', '/sign-in', '/sign-up', '/usecase', '/share', '/privacy', '/policy', '/api/og', '/trending', '/api/trending'],
+    unauthenticatedPaths: ['/', '/sign-in', '/sign-up', '/usecase', '/share', '/privacy', '/policy', '/api/og', '/trending', '/api/trending', '/onboarding', '/api/auth/workos-url'],
   },
   redirectUri:
     process.env.VERCEL_ENV === 'preview'

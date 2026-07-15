@@ -134,6 +134,8 @@ body[data-native="true"] {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: auto;
   padding-top: env(safe-area-inset-top);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 body[data-native="true"] main,
@@ -148,4 +150,19 @@ body[data-native="true"] header {
 /* Hide the web-only landing header on native; show the native tab bar */
 body[data-native="true"] .web-header {
   display: none;
+}
+
+body[data-native="true"] .safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Native-feeling form inputs */
+body[data-native="true"] input,
+body[data-native="true"] textarea {
+  font-size: 16px !important;
+}
+
+/* Smooth page transitions for native */
+body[data-native="true"] * {
+  -webkit-font-smoothing: antialiased;
 }

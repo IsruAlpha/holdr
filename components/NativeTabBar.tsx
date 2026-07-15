@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Film } from 'lucide-react';
+import { Home, Search, Film, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const tabs = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Discover', href: '/dashboard', icon: Search },
   { name: 'My List', href: '/dashboard', icon: Film },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
 ];
 
 export function NativeTabBar() {
@@ -16,8 +17,7 @@ export function NativeTabBar() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="fixed bottom-0 inset-x-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border safe-area-bottom"
     >
       <div className="flex items-center justify-around py-2 max-w-lg mx-auto">
         {tabs.map((tab) => {
@@ -30,7 +30,7 @@ export function NativeTabBar() {
               key={tab.name}
               href={tab.href}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-medium transition-colors',
+                'flex flex-col items-center gap-1 px-3 py-1.5 text-[10px] font-medium transition-colors min-w-[56px]',
                 isActive
                   ? 'text-foreground'
                   : 'text-muted-foreground'

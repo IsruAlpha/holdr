@@ -13,6 +13,10 @@ const config: CapacitorConfig = {
       '*.authkit.app',
       'api.workos.com',
       '*.workos.com',
+      'accounts.google.com',
+      'oauth2.googleapis.com',
+      'appleid.apple.com',
+      'id.apple.com',
     ],
   },
 };
