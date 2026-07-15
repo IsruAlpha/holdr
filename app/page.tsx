@@ -27,6 +27,7 @@ export default function Home() {
         <WebLanding />
       </Authenticated>
       <Unauthenticated>
+        <NativeRedirectOnboarding />
         <WebLanding />
       </Unauthenticated>
     </>
@@ -34,6 +35,25 @@ export default function Home() {
 }
 
 function NativeRedirect() {
+  const router = useRouter();
+  const [isNative, setIsNative] = useState(false);
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      setIsNative(true);
+      router.replace('/dashboard');
+    }
+  }, [router]);
+
+  if (!isNative) return null;
+  return (
+    <div className="flex min-h-dvh items-center justify-center">
+      <div className="animate-spin h-6 w-6 border-2 border-muted-foreground border-t-transparent rounded-full" />
+    </div>
+  );
+}
+
+function NativeRedirectOnboarding() {
   const router = useRouter();
   const [isNative, setIsNative] = useState(false);
 
