@@ -11,9 +11,12 @@ import { MovieSearch } from "@/components/movie-search";
 import { MovieDataTable, type Movie } from "@/components/movie-data-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LogOut, Film, Share2 } from "lucide-react";
+import { LogOut, Share2 } from "lucide-react";
 import { HoldrLogo } from "@/components/holdr-logo";
 import { PeopleSearch } from "@/components/people-search";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MetalFx } from "metal-fx";
+import { ExpandableWatchlistCard } from "@/components/expandable-watchlist-card";
 
 export default function DashboardPage() {
   const { user, signOut } = useAuth();
@@ -47,6 +50,9 @@ function DashboardHeader({
   onSignOut: () => void;
 }) {
   const avatarUrl = user.profilePictureUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=18181b,27272a,3f3f46&textColor=ffffff`;
+  const displayName = user.firstName
+    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ``}`
+    : user.email.split("@")[0];
 
   return (
     <header className="fixed top-0 z-20 w-full bg-background/75 border-b border-black/5 backdrop-blur-lg">
@@ -57,16 +63,52 @@ function DashboardHeader({
             <span className="text-lg sm:text-xl font-bold tracking-tight">Holdr</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
-            <Avatar className="h-8 w-8 ring-2 ring-background">
-              <AvatarImage src={avatarUrl} alt={user.email} />
-              <AvatarFallback className="text-xs">
-                {user.email.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </Button>
+            {/* Desktop: show name + avatar + sign out */}
+            <div className="hidden sm:flex items-center gap-3">
+              <span className="text-sm font-medium">{displayName}</span>
+              <MetalFx preset="chromatic" strength={0.6}>
+                <Avatar className="h-8 w-8 ring-2 ring-background cursor-pointer">
+                  <AvatarImage src={avatarUrl} alt={user.email} />
+                  <AvatarFallback className="text-xs">
+                    {user.email.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </MetalFx>
+              <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                <span>Sign out</span>
+              </Button>
+            </div>
+            {/* Mobile: avatar dropdown with red logout */}
+            <div className="sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="focus:outline-none">
+                    <MetalFx preset="chromatic" strength={0.6}>
+                      <Avatar className="h-8 w-8 ring-2 ring-background cursor-pointer">
+                        <AvatarImage src={avatarUrl} alt={user.email} />
+                        <AvatarFallback className="text-xs">
+                          {user.email.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </MetalFx>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium truncate">{displayName}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuItem
+                    onClick={onSignOut}
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>
@@ -192,58 +234,17 @@ function DashboardContent({ user }: { user: { email: string; firstName?: string 
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {sharedWatchlists.map((watchlist) => {
-                const watchlistAvatarUrl = watchlist.profilePictureUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(watchlist.userEmail || watchlist.userName)}&backgroundColor=18181b,27272a,3f3f46&textColor=ffffff`;
-
-                return (
-                  <Link
-                    key={watchlist.userId}
-                    href={`/share?userId=${encodeURIComponent(watchlist.userId)}`}
-                    className="group relative rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-md transition-all aspect-[4/3]"
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center gap-2 p-4">
-                      {watchlist.movies.slice(0, 3).map((movie) => (
-                        <div
-                          key={movie._id}
-                          className="relative rounded-lg overflow-hidden shrink-0 h-28 w-20 sm:h-36 sm:w-24 shadow-sm"
-                        >
-                          {movie.poster && movie.poster !== "N/A" ? (
-                            <img
-                              src={movie.poster}
-                              alt={movie.title}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <Film className="h-5 w-5 text-muted-foreground/50" />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/80 to-transparent pt-12 pb-4 px-4">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar className="h-8 w-8 ring-2 ring-background shrink-0">
-                          <AvatarImage src={watchlistAvatarUrl} alt={watchlist.userName} />
-                          <AvatarFallback className="text-xs">
-                            {watchlist.userName.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold truncate">
-                            {watchlist.userName}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            {watchlist.movieCount} movie{watchlist.movieCount !== 1 ? "s" : ""}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+              {sharedWatchlists.map((watchlist) => (
+                <ExpandableWatchlistCard
+                  key={watchlist.userId}
+                  userId={watchlist.userId}
+                  userName={watchlist.userName}
+                  userEmail={watchlist.userEmail || ""}
+                  profilePictureUrl={watchlist.profilePictureUrl}
+                  movieCount={watchlist.movieCount}
+                  movies={watchlist.movies}
+                />
+              ))}
             </div>
           </div>
         )}

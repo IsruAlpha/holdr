@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Film, Trash2, ListFilter, Columns, Eye, EyeOff } from "lucide-react";
+import { MovieDetailSheet } from "@/components/movie-detail-sheet";
 
 // --- TYPE DEFINITIONS ---
 export interface Movie {
@@ -65,6 +66,7 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
   const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
     new Set(["poster", "title", "year", "rating", "genre", "status", "actions"])
   );
+  const [selectedMovie, setSelectedMovie] = React.useState<Movie | null>(null);
 
   const allGenres = React.useMemo(() => {
     const genreSet = new Set<string>();
@@ -222,7 +224,8 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
                 initial="hidden"
                 animate="visible"
                 variants={rowVariants}
-                className="p-4 hover:bg-muted/50 transition-colors"
+                className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => setSelectedMovie(movie)}
               >
                 <div className="flex gap-3">
                   {visibleColumns.has("poster") && (
@@ -273,7 +276,7 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
                       </div>
                     )}
                     {visibleColumns.has("actions") && (
-                      <div className="flex items-center gap-1 mt-2">
+                      <div className="flex items-center gap-1 mt-2" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -336,7 +339,8 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
                   initial="hidden"
                   animate="visible"
                   variants={rowVariants}
-                  className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
+                  onClick={() => setSelectedMovie(movie)}
                 >
                   {visibleColumns.has("poster") && (
                     <TableCell>
@@ -405,7 +409,7 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
                   )}
 
                   {visibleColumns.has("actions") && (
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
@@ -447,6 +451,13 @@ export const MovieDataTable = ({ movies, onToggleWatched, onRemoveMovie }: Movie
           </TableBody>
         </Table>
       </div>
+
+      <MovieDetailSheet
+        movie={selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+        onToggleWatched={onToggleWatched}
+        onRemoveMovie={onRemoveMovie}
+      />
     </div>
   );
 };

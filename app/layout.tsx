@@ -55,8 +55,12 @@ export default async function RootLayout({
 }>) {
   const { accessToken } = await withAuth();
   return (
-    <html lang="en" className={cn("font-mono", jetbrainsMono.variable)}>
+    <html lang="en" className={cn("font-mono", jetbrainsMono.variable)} suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#09090b" />
+        <link rel="preconnect" href="https://cdn.undraw.co" />
+        <link rel="preconnect" href="https://api.dicebear.com" />
+        <link rel="preconnect" href="https://image.tmdb.org" />
         <script
           src="https://cdn.databuddy.cc/databuddy.js"
           data-client-id="b11213aa-1901-4577-9a06-19a4e067549a"

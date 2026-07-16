@@ -18,6 +18,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MetalFx } from 'metal-fx';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function Home() {
   return (
@@ -101,6 +103,9 @@ function WebLanding() {
 
 function LoggedInHeader({ user, onSignOut }: { user: User; onSignOut: () => void }) {
   const avatarUrl = user.profilePictureUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.email)}&backgroundColor=18181b,27272a,3f3f46&textColor=ffffff`;
+  const displayName = user.firstName
+    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ``}`
+    : user.email.split("@")[0];
 
   return (
     <header className="fixed top-0 z-20 w-full bg-background/75 border-b border-black/5 backdrop-blur-lg">
@@ -117,16 +122,51 @@ function LoggedInHeader({ user, onSignOut }: { user: User; onSignOut: () => void
             >
               Dashboard
             </Link>
-            <Avatar className="h-8 w-8 ring-2 ring-background">
-              <AvatarImage src={avatarUrl} alt={user.email} />
-              <AvatarFallback className="text-xs">
-                {user.email.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </Button>
+            {/* Desktop */}
+            <div className="hidden sm:flex items-center gap-3">
+              <MetalFx preset="chromatic" strength={0.6}>
+                <Avatar className="h-8 w-8 ring-2 ring-background">
+                  <AvatarImage src={avatarUrl} alt={user.email} />
+                  <AvatarFallback className="text-xs">
+                    {user.email.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </MetalFx>
+              <Button variant="ghost" size="sm" onClick={onSignOut} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                <span>Sign out</span>
+              </Button>
+            </div>
+            {/* Mobile */}
+            <div className="sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="focus:outline-none">
+                    <MetalFx preset="chromatic" strength={0.6}>
+                      <Avatar className="h-8 w-8 ring-2 ring-background">
+                        <AvatarImage src={avatarUrl} alt={user.email} />
+                        <AvatarFallback className="text-xs">
+                          {user.email.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </MetalFx>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium truncate">{displayName}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuItem
+                    onClick={onSignOut}
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>

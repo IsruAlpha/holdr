@@ -11,6 +11,7 @@ import { useAuth } from '@workos-inc/authkit-nextjs/components'
 const menuItems = [
     { name: 'Features', href: '#features' },
     { name: 'Usecase', href: '#usecase' },
+    { name: 'App', href: '/app' },
     { name: 'Contact', href: 'mailto:israelfirew7@gmail.com' },
 ]
 

@@ -3,21 +3,27 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useCallback } from "react";
 import Link from "next/link";
 import { Authenticated } from "convex/react";
 import { useAuth } from "@workos-inc/authkit-nextjs/components";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Film, ArrowLeft, Plus, Check } from "lucide-react";
+import { Film, ArrowLeft } from "lucide-react";
 import { HoldrLogo } from "@/components/holdr-logo";
+import { MovieDetailSheet } from "@/components/movie-detail-sheet";
+import type { Movie } from "@/components/movie-data-table";
 
 function ShareContent() {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
   const userId = searchParams.get("userId");
   const { user } = useAuth();
+  const addMovie = useMutation(api.movies.addMovie);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+  const [adding, setAdding] = useState(false);
+
   const codeResult = useQuery(
     api.shareLinks.getMoviesByShareCode,
     code ? { code } : "skip"
@@ -29,6 +35,34 @@ function ShareContent() {
 
   const result = code ? codeResult : userIdResult;
   const hasParam = !!(code || userId);
+
+  const handleAddToWatchlist = useCallback(
+    async (movie: Movie) => {
+      if (!user || addedIds.has(movie._id)) return;
+      setAdding(true);
+      try {
+        const displayName =
+          user.firstName || user.email?.split("@")[0] || "";
+        await addMovie({
+          title: movie.title,
+          year: movie.year,
+          poster: movie.poster,
+          rating: movie.rating,
+          genre: movie.genre,
+          description: movie.description,
+          userName: displayName || undefined,
+          userEmail: user.email || undefined,
+          profilePictureUrl: user.profilePictureUrl || undefined,
+        });
+        setAddedIds((prev) => new Set(prev).add(movie._id));
+      } catch {
+        // Failed
+      } finally {
+        setAdding(false);
+      }
+    },
+    [user, addMovie, addedIds]
+  );
 
   if (!hasParam) {
     return (
@@ -80,7 +114,11 @@ function ShareContent() {
   }
 
   const { movies, userName, userEmail, profilePictureUrl } = result;
-  const avatarUrl = profilePictureUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userEmail || userName)}&backgroundColor=18181b,27272a,3f3f46&textColor=ffffff`;
+  const avatarUrl =
+    profilePictureUrl ||
+    `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+      userEmail || userName
+    )}&backgroundColor=18181b,27272a,3f3f46&textColor=ffffff`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,7 +162,9 @@ function ShareContent() {
               </AvatarFallback>
             </Avatar>
             <h1 className="text-xl sm:text-2xl md:text-3xl tracking-tight">
-              <span className="font-normal">{movies.length} movie{movies.length !== 1 ? "s" : ""} shared with you from </span>
+              <span className="font-normal">
+                {movies.length} movie{movies.length !== 1 ? "s" : ""} shared with you from{" "}
+              </span>
               <span className="font-semibold">{userName}</span>
             </h1>
           </div>
@@ -138,52 +178,59 @@ function ShareContent() {
         ) : (
           <div className="grid gap-4 sm:gap-6">
             {movies.map((movie) => (
-              <ShareMovieCard key={movie._id} movie={movie} />
+              <ShareMovieCard
+                key={movie._id}
+                movie={movie}
+                onSelect={() => setSelectedMovie(movie as Movie)}
+                added={addedIds.has(movie._id)}
+              />
             ))}
           </div>
         )}
       </main>
+
+      <MovieDetailSheet
+        movie={selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+        onAddToWatchlist={user ? handleAddToWatchlist : undefined}
+        added={selectedMovie ? addedIds.has(selectedMovie._id) : false}
+        adding={adding}
+        mode="share"
+      />
     </div>
   );
 }
 
-function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: string; poster: string; rating: string; genre: string; description: string; watched: boolean } }) {
-  const { user } = useAuth();
-  const addMovie = useMutation(api.movies.addMovie);
-  const [added, setAdded] = useState(false);
-  const [adding, setAdding] = useState(false);
-
-  const handleAdd = async () => {
-    setAdding(true);
-    try {
-      const displayName = user?.firstName || user?.email?.split("@")[0] || "";
-      await addMovie({
-        title: movie.title,
-        year: movie.year,
-        poster: movie.poster,
-        rating: movie.rating,
-        genre: movie.genre,
-        description: movie.description,
-        userName: displayName || undefined,
-        userEmail: user?.email || undefined,
-        profilePictureUrl: user?.profilePictureUrl || undefined,
-      });
-      setAdded(true);
-    } catch {
-      // Failed
-    } finally {
-      setAdding(false);
-    }
+function ShareMovieCard({
+  movie,
+  onSelect,
+  added,
+}: {
+  movie: {
+    _id: string;
+    title: string;
+    year: string;
+    poster: string;
+    rating: string;
+    genre: string;
+    description: string;
+    watched: boolean;
   };
-
+  onSelect: () => void;
+  added: boolean;
+}) {
   return (
-    <div className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+    <div
+      onClick={onSelect}
+      className="rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer active:scale-[0.98]"
+    >
       <div className="flex gap-3 p-3 sm:gap-6 sm:p-6">
         {movie.poster && movie.poster !== "N/A" ? (
           <img
             src={movie.poster}
             alt={movie.title}
             className="h-24 w-16 sm:h-32 sm:w-24 rounded-lg object-cover shrink-0"
+            loading="lazy"
           />
         ) : (
           <div className="h-24 w-16 sm:h-32 sm:w-24 rounded-lg bg-muted flex items-center justify-center shrink-0">
@@ -191,8 +238,12 @@ function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: 
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-tight">{movie.title}</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{movie.year}</p>
+          <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-tight">
+            {movie.title}
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            {movie.year}
+          </p>
           {movie.rating !== "N/A" && (
             <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
               <span className="text-xs sm:text-sm font-medium">{movie.rating}</span>
@@ -215,27 +266,13 @@ function ShareMovieCard({ movie }: { movie: { _id: string; title: string; year: 
           )}
         </div>
       </div>
-      <div className="flex items-center justify-between border-t bg-muted/30 px-3 py-2 sm:px-6 sm:py-3">
-        <Badge
-          variant={movie.watched ? "watched" : "toWatch"}
-          className="text-[10px] sm:text-xs"
-        >
-          {movie.watched ? "Watched" : "To Watch"}
-        </Badge>
-        <Authenticated>
-          {added ? (
-            <Button size="sm" variant="outline" disabled className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3">
-              <Check className="h-3 w-3" />
-              Added
-            </Button>
-          ) : (
-            <Button size="sm" variant="outline" onClick={handleAdd} disabled={adding} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3">
-              <Plus className="h-3.5 w-3.5" />
-              {adding ? "..." : "Add"}
-            </Button>
-          )}
-        </Authenticated>
-      </div>
+      {added && (
+        <div className="border-t bg-green-500/10 px-3 py-2 sm:px-6 sm:py-3 text-center">
+          <span className="text-xs font-medium text-green-600 dark:text-green-400">
+            Added to your watchlist
+          </span>
+        </div>
+      )}
     </div>
   );
 }

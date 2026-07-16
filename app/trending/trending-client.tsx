@@ -125,6 +125,7 @@ function TrendingCard({ movie }: { movie: TrendingMovie }) {
             src={movie.poster}
             alt={movie.title}
             className="h-24 w-16 sm:h-36 sm:w-24 rounded-lg object-cover shrink-0"
+            loading="lazy"
           />
         ) : (
           <div className="h-24 w-16 sm:h-36 sm:w-24 rounded-lg bg-muted flex items-center justify-center shrink-0">

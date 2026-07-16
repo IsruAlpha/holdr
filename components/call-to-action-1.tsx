@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Download } from 'lucide-react'
 import { useAuth } from '@workos-inc/authkit-nextjs/components'
 
 export default function CallToAction() {
@@ -26,7 +26,10 @@ export default function CallToAction() {
                         <Button
                             variant="secondary"
                             asChild>
-                            <Link href="#features">Explore Features</Link>
+                            <a href="/app">
+                                <Download className="h-4 w-4 mr-1.5" />
+                                Download for Android
+                            </a>
                         </Button>
                     </div>
                 </div>

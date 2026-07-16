@@ -75,7 +75,7 @@ export function useMovieSearch() {
       } finally {
         setIsLoading(false);
       }
-    }, 300);
+    }, 200);
   }, []);
 
   const selectMovie = useCallback(

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { HeroHeader } from './header'
-import { ChevronRight, Film, Star, Bookmark, Share2 } from 'lucide-react'
+import { ChevronRight, Film, Star, Bookmark, Share2, Download } from 'lucide-react'
 import { KineticTextReveal } from '@/components/ui/kinetic-text-reveal'
 
 export default function HeroSection() {
@@ -20,14 +20,24 @@ export default function HeroSection() {
                                     />
                                     <p className="text-muted-foreground mt-4 text-balance">Holdr helps you store movies you want to watch later and discover new favorites through friends&apos; recommendations.</p>
 
-                                    <Button
-                                        asChild
-                                        className="mt-6 pr-1.5">
-                                        <a href="/sign-up">
-                                            <span className="text-nowrap">Start Collecting</span>
-                                            <ChevronRight className="opacity-50" />
-                                        </a>
-                                    </Button>
+                                    <div className="mt-6 flex flex-wrap gap-3">
+                                        <Button
+                                            asChild
+                                            className="pr-1.5">
+                                            <a href="/sign-up">
+                                                <span className="text-nowrap">Start Collecting</span>
+                                                <ChevronRight className="opacity-50" />
+                                            </a>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            asChild>
+                                            <a href="/app">
+                                                <Download className="h-4 w-4 mr-1.5" />
+                                                <span className="text-nowrap">Download for Android</span>
+                                            </a>
+                                        </Button>
+                                    </div>
                                 </div>
                                 <div
                                     aria-hidden
