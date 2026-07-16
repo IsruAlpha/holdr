@@ -115,7 +115,7 @@ export default function AppPage() {
   const [apkUrl, setApkUrl] = useState("");
 
   useEffect(() => {
-    setApkUrl("https://holdr.linkroot.space/holdr.apk");
+    setApkUrl("/holdr1.0.1.apk");
   }, []);
 
   return (
